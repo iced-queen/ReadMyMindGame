@@ -1,4 +1,4 @@
-/* ── Form elements ───────────────────────────────────────────────────────────── */
+/* form elements */
 .form-group {
   margin-bottom: 1rem;
 }
@@ -30,7 +30,7 @@ input[type="text"]:focus {
   box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.18);
 }
 
-/* ── Divider ─────────────────────────────────────────────────────────────────── */
+/* divider */
 .divider {
   display: flex;
   align-items: center;
