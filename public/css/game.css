@@ -1,4 +1,4 @@
-/* ── Prompt box (answering screen) ───────────────────────────────────────────── */
+/* prompt box */
 .prompt-box {
   background: rgba(13, 148, 136, 0.08);
   border: 1px solid rgba(13, 148, 136, 0.3);
@@ -24,7 +24,7 @@
   line-height: 1.35;
 }
 
-/* ── Result heading ──────────────────────────────────────────────────────────── */
+/* result heading */
 .result-heading {
   font-size: 1.75rem;
   font-weight: 800;
@@ -46,7 +46,7 @@
   animation: heading-pop 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-/* ── Answer comparison (results screen) ──────────────────────────────────────── */
+/* answer comparison */
 .answer-compare {
   display: flex;
   flex-direction: column;
@@ -100,7 +100,7 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ── Match counter (results screen) ─────────────────────────────────────────── */
+/* match counter */
 /* Shows how many rounds have been matched so far, e.g. "2 / 6" */
 .match-counter {
   display: flex;
@@ -150,7 +150,7 @@
   color: #6b7280;
 }
 
-/* ── Final match display (game over) ────────────────────────────────────────── */
+/* final match display */
 .final-match-display {
   margin: 1.5rem 0 0.25rem;
   text-align: center;
@@ -195,7 +195,7 @@
   margin-top: 0.25rem;
 }
 
-/* ── Ready status pills ──────────────────────────────────────────────────────── */
+/* ready status pills */
 .ready-status {
   display: flex;
   gap: 0.75rem;

@@ -19,7 +19,7 @@
   <meta name="twitter:description" content="Think the same thought &mdash; can you read each other&rsquo;s minds?" />
   <meta name="twitter:image"       content="https://readmymindgame.onrender.com/img/logo.png" />
 
-  <!-- Theme colour (teal) -->
+  <!-- Theme colour -->
   <meta name="theme-color" content="#0d9488" />
 
   <link rel="stylesheet" href="css/base.css" />
@@ -35,7 +35,7 @@
       <p class="tagline">Think the same thought &mdash; can you read each other&rsquo;s minds?</p>
     </header>
 
-    <!-- ── Lobby ─────────────────────────────────────────────────────────── -->
+    <!-- lobby -->
     <div id="screen-lobby" class="screen active">
       <div class="card">
         <h2>Welcome!</h2>
@@ -61,26 +61,25 @@
       </div>
     </div>
 
-    <!-- ── Room Settings ─────────────────────────────────────────────────── -->
+    <!-- room settings -->
     <div id="screen-room-settings" class="screen">
       <div class="card">
         <h2>Game Settings</h2>
         <p class="muted">Choose a category and how many rounds to play.</p>
 
-        <!-- Category picker (buttons built by game.js) -->
-        <div class="setting-section">
-          <p class="setting-section-label">Category</p>
-          <div class="category-grid" id="category-grid"></div>
-        </div>
-
         <div class="setting-row" style="margin-top:1.25rem">
           <span class="setting-name">Rounds</span>
           <div class="stepper">
-            <button type="button" id="rounds-dec" class="stepper-btn">&minus;</button>
+            <button type="button" id="rounds-dec" class="stepper-btn">−</button>
             <input type="number" id="rounds-display" class="rounds-input"
                    value="6" min="1" max="20" required />
             <button type="button" id="rounds-inc" class="stepper-btn">+</button>
           </div>
+        </div>
+
+        <div class="setting-section">
+          <p class="setting-section-label">Category</p>
+          <div class="category-grid" id="category-grid"></div>
         </div>
 
         <button id="confirm-create-btn" class="btn primary" style="margin-top:1.5rem">Create Room</button>
@@ -88,7 +87,7 @@
       </div>
     </div>
 
-    <!-- ── Waiting Room (waiting for 2nd player) ─────────────────────────── -->
+    <!-- waiting for opponent -->
     <div id="screen-waiting-room" class="screen">
       <div class="card text-center">
         <h2>Room Created!</h2>
@@ -100,7 +99,7 @@
       </div>
     </div>
 
-    <!-- ── Answering (prompt + input) ────────────────────────────────────── -->
+    <!-- writing screen -->
     <div id="screen-answering" class="screen">
       <div class="card">
         <div class="round-info">
@@ -126,7 +125,7 @@
       </div>
     </div>
 
-    <!-- ── Waiting (submitted, waiting for other player) ─────────────────── -->
+    <!-- mid-round waiting screen -->
     <div id="screen-waiting" class="screen">
       <div class="card text-center">
         <span class="round-label" id="waiting-round">Round 1</span>
@@ -136,14 +135,13 @@
       </div>
     </div>
 
-    <!-- ── Results ────────────────────────────────────────────────────────── -->
+    <!-- results screen -->
     <div id="screen-results" class="screen">
       <div class="card">
         <div class="round-info">
           <span class="round-label" id="results-round">Round 1</span>
         </div>
 
-        <!-- Running match counter — updates after every round -->
         <div class="match-counter">
           <span class="match-label">Matches so far</span>
           <div class="match-fraction">
@@ -153,15 +151,11 @@
           </div>
         </div>
 
-        <!-- Big match / no-match heading, animated by JS -->
         <h2 class="result-heading" id="result-heading"></h2>
 
-        <!-- Both answers shown side by side, built by buildAnswerCompare() -->
         <div class="answer-compare" id="answer-compare"></div>
 
         <button id="next-round-btn" class="btn primary">Next Round &rarr;</button>
-
-        <!-- Ready pills show who has clicked Next Round -->
         <div class="ready-status">
           <div class="ready-pill" id="ready-pill-me">
             <span class="ready-dot"></span>
@@ -175,7 +169,7 @@
       </div>
     </div>
 
-    <!-- ── Game Over ──────────────────────────────────────────────────────── -->
+    <!-- game over -->
     <div id="screen-game-over" class="screen">
       <div class="card text-center">
         <h2 id="gameover-heading"></h2>
@@ -199,7 +193,7 @@
       </div>
     </div>
 
-    <!-- ── Error / Disconnect ─────────────────────────────────────────────── -->
+    <!-- error / disconnect -->
     <div id="screen-error" class="screen">
       <div class="card text-center">
         <h2>Oops!</h2>
@@ -209,7 +203,7 @@
       </div>
     </div>
 
-  </div><!-- /.app -->
+  </div>
 
   <footer class="site-footer">Made with &#10084;&#65039; by Iced Queen</footer>
 
