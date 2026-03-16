@@ -50,6 +50,26 @@ header.compact h1 {
 header.compact .tagline {
   display: none;
 }
+header.compact .site-logo {
+  width: 72px;
+  animation: none;
+}
+
+.site-logo {
+  display: block;
+  width: 300px;
+  height: auto;
+  margin: 0 auto 0;
+  border-radius: 32px;
+  animation: logo-bounce 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes logo-bounce {
+  0%   { transform: scale(0.5) translateY(-20px); opacity: 0; }
+  65%  { transform: scale(1.08) translateY(0);    opacity: 1; }
+  82%  { transform: scale(0.96); }
+  100% { transform: scale(1); }
+}
 
 .tagline {
   color: #6b7280;
@@ -116,4 +136,5 @@ header.compact .tagline {
   .card              { padding: 1.5rem; }
   .room-code-display { font-size: 2.25rem; }
   .result-heading    { font-size: 1.4rem; }
+  .site-logo         { width: 200px; }
 }
