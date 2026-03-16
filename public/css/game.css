@@ -1,0 +1,242 @@
+/* ── Prompt box (answering screen) ───────────────────────────────────────────── */
+.prompt-box {
+  background: rgba(13, 148, 136, 0.08);
+  border: 1px solid rgba(13, 148, 136, 0.3);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  margin-top: 1rem;
+}
+
+.prompt-label {
+  display: block;
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #5eead4;
+  margin-bottom: 0.4rem;
+}
+
+.prompt-text {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #fffffe;
+  line-height: 1.35;
+}
+
+/* ── Result heading ──────────────────────────────────────────────────────────── */
+.result-heading {
+  font-size: 1.75rem;
+  font-weight: 800;
+  margin-bottom: 0.35rem;
+}
+
+/* Green when both players matched */
+.result-heading.match   { color: #4ade80; }
+/* Amber when they didn't */
+.result-heading.no-match { color: #fbbf24; }
+
+/* Pop-in animation triggered by JS */
+@keyframes heading-pop {
+  0%   { transform: scale(0.7);  opacity: 0; }
+  65%  { transform: scale(1.06); opacity: 1; }
+  100% { transform: scale(1); }
+}
+.result-heading.pop {
+  animation: heading-pop 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ── Answer comparison (results screen) ──────────────────────────────────────── */
+.answer-compare {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  margin: 1.25rem 0;
+}
+
+/* One row per player showing their answer */
+.answer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  border-radius: 10px;
+  padding: 0.8rem 1rem;
+  animation: answer-row-in 0.3s ease both;
+}
+
+/* Matching answers get a green tint */
+.answer-row.answer-match {
+  background: rgba(74, 222, 128, 0.09);
+  border: 1px solid rgba(74, 222, 128, 0.3);
+}
+
+/* Non-matching answers get a neutral tint */
+.answer-row.answer-no-match {
+  background: rgba(99, 102, 241, 0.07);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+.answer-player-name {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  flex-shrink: 0;
+}
+
+.answer-text {
+  flex: 1;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #fffffe;
+  text-align: right;
+  word-break: break-word;
+}
+
+@keyframes answer-row-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Match counter (results screen) ─────────────────────────────────────────── */
+/* Shows how many rounds have been matched so far, e.g. "2 / 6" */
+.match-counter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid #1f2d3d;
+  border-radius: 10px;
+  padding: 0.55rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.match-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+.match-fraction {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3rem;
+}
+
+.match-val {
+  font-size: 1.5rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #5eead4 0%, #67e8f9 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  min-width: 1.5ch;
+  text-align: center;
+}
+
+.match-sep {
+  color: #4b5563;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.match-total {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #6b7280;
+}
+
+/* ── Final match display (game over) ────────────────────────────────────────── */
+.final-match-display {
+  margin: 1.5rem 0 0.25rem;
+  text-align: center;
+}
+
+.final-match-fraction {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+
+.final-match-num {
+  font-size: 4rem;
+  font-weight: 800;
+  line-height: 1;
+  background: linear-gradient(135deg, #5eead4 0%, #67e8f9 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.final-match-sep {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #4b5563;
+  line-height: 1;
+}
+
+.final-match-den {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #6b7280;
+  line-height: 1;
+}
+
+.final-match-label {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+  color: #6b7280;
+  margin-top: 0.25rem;
+}
+
+/* ── Ready status pills ──────────────────────────────────────────────────────── */
+.ready-status {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.ready-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.3rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border: 1px solid #1f2d3d;
+  color: #6b7280;
+  transition: border-color 0.3s, color 0.3s, background 0.3s;
+}
+
+/* Turns green when a player has voted to continue */
+.ready-pill.is-ready {
+  border-color: rgba(34, 197, 94, 0.5);
+  color: #4ade80;
+  background: rgba(34, 197, 94, 0.1);
+  animation: pill-pop 0.35s ease both;
+}
+
+.ready-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #4b5563;
+  flex-shrink: 0;
+  transition: background 0.3s;
+}
+
+.ready-pill.is-ready .ready-dot { background: #4ade80; }
+
+@keyframes pill-pop {
+  0%   { transform: scale(1); }
+  45%  { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}

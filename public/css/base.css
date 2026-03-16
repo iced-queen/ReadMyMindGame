@@ -1,0 +1,119 @@
+/* ── Reset ───────────────────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── Body ────────────────────────────────────────────────────────────────────── */
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: #080d18;
+  color: #fffffe;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 2rem 1rem 4rem; /* bottom padding leaves room for the fixed footer */
+}
+
+/* ── App shell ───────────────────────────────────────────────────────────────── */
+.app {
+  width: 100%;
+  max-width: 480px;
+}
+
+/* ── Header ──────────────────────────────────────────────────────────────────── */
+header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+header h1 {
+  font-size: 2.75rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #5eead4 0%, #67e8f9 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Compact header shown during active gameplay */
+header.compact {
+  margin-bottom: 0.25rem;
+}
+header.compact h1 {
+  font-size: 1.4rem;
+}
+header.compact .tagline {
+  display: none;
+}
+
+.tagline {
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+/* ── Screen visibility ───────────────────────────────────────────────────────── */
+.screen        { display: none; }
+.screen.active { display: block; }
+
+/* ── Card ────────────────────────────────────────────────────────────────────── */
+.card {
+  background: #101827;
+  border: 1px solid #1f2d3d;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+/* Slide-up entrance animation whenever a new screen becomes active */
+@keyframes card-enter {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.screen.active .card {
+  animation: card-enter 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.card h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.4rem;
+}
+
+/* ── Typography utilities ────────────────────────────────────────────────────── */
+.muted {
+  color: #9ca3af;
+  font-size: 0.9rem;
+  margin-bottom: 0.75rem;
+  line-height: 1.5;
+}
+
+.text-center { text-align: center; }
+.hidden      { display: none !important; }
+
+/* ── Footer ──────────────────────────────────────────────────────────────────── */
+.site-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  text-align: center;
+  color: #4b5563;
+  font-size: 0.8rem;
+  padding: 0.6rem 0;
+  pointer-events: none;
+  background: linear-gradient(to top, #080d18 60%, transparent);
+}
+
+/* ── Responsive tweaks ───────────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  header h1          { font-size: 2.1rem; }
+  .card              { padding: 1.5rem; }
+  .room-code-display { font-size: 2.25rem; }
+  .result-heading    { font-size: 1.4rem; }
+}

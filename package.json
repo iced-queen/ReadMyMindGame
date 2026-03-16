@@ -1,0 +1,13 @@
+{
+  "name": "readmymind",
+  "version": "1.0.0",
+  "description": "A 2-player game where both players try to think the same thought",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "socket.io": "^4.7.2"
+  }
+}

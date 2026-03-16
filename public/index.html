@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ReadMyMind</title>
+
+  <!-- Theme colour (teal) -->
+  <meta name="theme-color" content="#0d9488" />
+
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/game.css" />
+</head>
+<body>
+  <div class="app">
+
+    <header>
+      <h1>ReadMyMind</h1>
+      <p class="tagline">Think the same thought &mdash; can you read each other&rsquo;s minds?</p>
+    </header>
+
+    <!-- ── Lobby ─────────────────────────────────────────────────────────── -->
+    <div id="screen-lobby" class="screen active">
+      <div class="card">
+        <h2>Welcome!</h2>
+        <p class="muted">Enter your name, then create or join a room.</p>
+
+        <div class="form-group">
+          <label for="player-name">Your Name</label>
+          <input type="text" id="player-name" placeholder="e.g. Alex"
+                 maxlength="20" autocomplete="off" />
+        </div>
+
+        <button id="create-btn" class="btn primary">Create New Room</button>
+
+        <div class="divider"><span>or join with a code</span></div>
+
+        <div class="form-group">
+          <label for="room-code-input">Room Code</label>
+          <input type="text" id="room-code-input" placeholder="e.g. AB3D5"
+                 maxlength="5" autocomplete="off" style="text-transform:uppercase" />
+        </div>
+
+        <button id="join-btn" class="btn secondary">Join Room</button>
+      </div>
+    </div>
+
+    <!-- ── Room Settings ─────────────────────────────────────────────────── -->
+    <div id="screen-room-settings" class="screen">
+      <div class="card">
+        <h2>Game Settings</h2>
+        <p class="muted">Choose a category and how many rounds to play.</p>
+
+        <!-- Category picker (buttons built by game.js) -->
+        <div class="setting-section">
+          <p class="setting-section-label">Category</p>
+          <div class="category-grid" id="category-grid"></div>
+        </div>
+
+        <div class="setting-row" style="margin-top:1.25rem">
+          <span class="setting-name">Rounds</span>
+          <div class="stepper">
+            <button type="button" id="rounds-dec" class="stepper-btn">&minus;</button>
+            <input type="number" id="rounds-display" class="rounds-input"
+                   value="6" min="1" max="20" required />
+            <button type="button" id="rounds-inc" class="stepper-btn">+</button>
+          </div>
+        </div>
+
+        <button id="confirm-create-btn" class="btn primary" style="margin-top:1.5rem">Create Room</button>
+        <button id="back-to-lobby-settings-btn" class="btn secondary">&larr; Back</button>
+      </div>
+    </div>
+
+    <!-- ── Waiting Room (waiting for 2nd player) ─────────────────────────── -->
+    <div id="screen-waiting-room" class="screen">
+      <div class="card text-center">
+        <h2>Room Created!</h2>
+        <p class="muted">Share this code with your partner:</p>
+        <div class="room-code-display" id="display-room-code">-----</div>
+        <p class="muted" id="waiting-room-category"></p>
+        <p class="muted">Waiting for another player to join&hellip;</p>
+        <div class="loader"></div>
+      </div>
+    </div>
+
+    <!-- ── Answering (prompt + input) ────────────────────────────────────── -->
+    <div id="screen-answering" class="screen">
+      <div class="card">
+        <div class="round-info">
+          <span class="round-label" id="answering-round">Round 1</span>
+          <span class="role-badge thinking" id="category-badge"></span>
+        </div>
+
+        <h2>Think Alike</h2>
+        <p class="muted">Both players see the same prompt. Write the first thing that comes to mind!</p>
+
+        <div class="prompt-box">
+          <span class="prompt-label">Prompt</span>
+          <p class="prompt-text" id="prompt-display">Name a fruit</p>
+        </div>
+
+        <div class="form-group" style="margin-top:1.25rem">
+          <label for="answer-input">Your Answer</label>
+          <input type="text" id="answer-input" placeholder="Type your answer&hellip;"
+                 maxlength="100" autocomplete="off" />
+        </div>
+
+        <button id="submit-answer-btn" class="btn primary">Submit Answer</button>
+      </div>
+    </div>
+
+    <!-- ── Waiting (submitted, waiting for other player) ─────────────────── -->
+    <div id="screen-waiting" class="screen">
+      <div class="card text-center">
+        <span class="round-label" id="waiting-round">Round 1</span>
+        <h2 id="waiting-heading" style="margin-top:.75rem">Waiting&hellip;</h2>
+        <p class="muted" id="waiting-subtext"></p>
+        <div class="loader"></div>
+      </div>
+    </div>
+
+    <!-- ── Results ────────────────────────────────────────────────────────── -->
+    <div id="screen-results" class="screen">
+      <div class="card">
+        <div class="round-info">
+          <span class="round-label" id="results-round">Round 1</span>
+        </div>
+
+        <!-- Running match counter — updates after every round -->
+        <div class="match-counter">
+          <span class="match-label">Matches so far</span>
+          <div class="match-fraction">
+            <span class="match-val" id="match-count-display">0</span>
+            <span class="match-sep">/</span>
+            <span class="match-total" id="match-total-display">6</span>
+          </div>
+        </div>
+
+        <!-- Big match / no-match heading, animated by JS -->
+        <h2 class="result-heading" id="result-heading"></h2>
+
+        <!-- Both answers shown side by side, built by buildAnswerCompare() -->
+        <div class="answer-compare" id="answer-compare"></div>
+
+        <button id="next-round-btn" class="btn primary">Next Round &rarr;</button>
+
+        <!-- Ready pills show who has clicked Next Round -->
+        <div class="ready-status">
+          <div class="ready-pill" id="ready-pill-me">
+            <span class="ready-dot"></span>
+            <span id="ready-name-me">You</span>
+          </div>
+          <div class="ready-pill" id="ready-pill-them">
+            <span class="ready-dot"></span>
+            <span id="ready-name-them">Them</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Game Over ──────────────────────────────────────────────────────── -->
+    <div id="screen-game-over" class="screen">
+      <div class="card text-center">
+        <h2 id="gameover-heading"></h2>
+        <p class="muted" id="gameover-detail"></p>
+
+        <!-- Final match count and rating, built by JS -->
+        <div class="final-match-display" id="final-match-display"></div>
+
+        <button id="play-again-btn" class="btn primary" style="margin-top:1.5rem">Play Again</button>
+
+        <div class="ready-status" id="play-again-ready-status">
+          <div class="ready-pill" id="play-again-pill-me">
+            <span class="ready-dot"></span>
+            <span id="play-again-name-me">You</span>
+          </div>
+          <div class="ready-pill" id="play-again-pill-them">
+            <span class="ready-dot"></span>
+            <span id="play-again-name-them">Them</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Error / Disconnect ─────────────────────────────────────────────── -->
+    <div id="screen-error" class="screen">
+      <div class="card text-center">
+        <h2>Oops!</h2>
+        <p class="muted" id="error-msg-text">Something went wrong.</p>
+        <button id="back-to-lobby-btn" class="btn secondary"
+                style="margin-top:1.5rem">&larr; Back to Lobby</button>
+      </div>
+    </div>
+
+  </div><!-- /.app -->
+
+  <footer class="site-footer">Made with &#10084;&#65039; by Iced Queen</footer>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>
