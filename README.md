@@ -5,7 +5,7 @@ A small multiplayer social game where two players try to think alike.
 Both players receive the same prompt and must type an answer.  
 If the answers match, you score!
 
-🎮 **Play here:** https://readmymind.onrender.com
+🎮 **Play here:** https://readmymindgame.onrender.com
 
 ---
 
