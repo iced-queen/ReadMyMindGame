@@ -100,7 +100,30 @@ input[type="text"]:focus {
   -webkit-text-fill-color: transparent;
   background-clip: text;
   margin: 1.25rem 0;
-  user-select: all; /* makes it easy to copy */
+  cursor: pointer;
+  position: relative;
+}
+
+.room-code-display::after {
+  content: 'Click to copy';
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  font-family: inherit;
+  background: none;
+  -webkit-text-fill-color: #94a3b8;
+  color: #94a3b8;
+  margin-top: -0.5rem;
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+
+.room-code-display.copied::after {
+  content: 'Copied!';
+  -webkit-text-fill-color: #5eead4;
+  color: #5eead4;
+  opacity: 1;
 }
 
 /* round info bar */

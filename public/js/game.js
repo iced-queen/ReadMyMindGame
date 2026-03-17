@@ -123,7 +123,14 @@ roundsInput.addEventListener('blur', () => {
 // Room was created successfully — show the room code while waiting for a partner
 socket.on('room-created', ({ roomCode, playerIndex }) => {
   myPlayerIndex = playerIndex;
-  document.getElementById('display-room-code').textContent = roomCode;
+  const roomCodeEl = document.getElementById('display-room-code');
+  roomCodeEl.textContent = roomCode;
+  roomCodeEl.onclick = () => {
+    navigator.clipboard.writeText(roomCode).then(() => {
+      roomCodeEl.classList.add('copied');
+      setTimeout(() => roomCodeEl.classList.remove('copied'), 2000);
+    });
+  };
   // Show the chosen category in the waiting room so the creator remembers what they picked
   const cat = CATEGORIES.find(c => c.id === selectedCategory);
   document.getElementById('waiting-room-category').textContent =
