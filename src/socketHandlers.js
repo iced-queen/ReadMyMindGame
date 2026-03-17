@@ -183,7 +183,7 @@ function registerHandlers(io) {
         // Increment the shared match counter when both players think the same thing.
         if (matched) room.matchCount++;
 
-        io.to(socket.data.roomCode).emit('both-answered', {
+        const resultPayload = {
           answers:     [...room.answers],
           matched,
           players:     room.players.map(p => p.name),
@@ -191,7 +191,9 @@ function registerHandlers(io) {
           round:       room.round,
           totalRounds: room.settings.totalRounds,
           prompt:      room.currentPrompt,
-        });
+        };
+        room.lastResult = resultPayload;
+        io.to(socket.data.roomCode).emit('both-answered', resultPayload);
         console.log(`[room]       ${socket.data.roomCode} round ${room.round} — ${matched ? 'MATCH ✓' : 'no match ✗'}`);
       }
       // If only one answer is in, the client already shows a waiting state,
@@ -275,16 +277,118 @@ function registerHandlers(io) {
       }
     });
 
-    // ── disconnect ────────────────────────────────────────────────────────────
-    socket.on('disconnect', () => {
-      const code = socket.data.roomCode;
-      if (code && rooms[code]) {
-        // Tell the remaining player their partner left.
-        socket.to(code).emit('player-disconnected', { name: socket.data.playerName });
-        delete rooms[code];
-        console.log(`[room]       ${code} closed — "${socket.data.playerName}" left`);
+    // ── rejoin-room ─────────────────────────────────────────────────
+    socket.on('rejoin-room', ({ roomCode, playerIndex }) => {
+      if (typeof roomCode !== 'string' || typeof playerIndex !== 'number') return;
+      const code = roomCode.trim().toUpperCase().slice(0, 5);
+      const room = rooms[code];
+
+      if (!room) {
+        socket.emit('error-message', 'Your session expired. Please start a new game.');
+        return;
       }
-      console.log(`[disconnect] ${socket.id}`);
+
+      const slot = room.disconnectSlot;
+      if (!slot || slot.playerIndex !== playerIndex) return;
+
+      // Cancel the destruction timer
+      clearTimeout(room.disconnectTimer);
+      room.disconnectSlot  = null;
+      room.disconnectTimer = null;
+
+      // Restore socket data and room membership
+      socket.join(code);
+      socket.data.roomCode    = code;
+      socket.data.playerName  = slot.playerName;
+      socket.data.playerIndex = slot.playerIndex;
+      if (room.players[slot.playerIndex]) room.players[slot.playerIndex].id = socket.id;
+
+      // Notify the other player
+      socket.to(code).emit('opponent-reconnected', { name: slot.playerName });
+
+      // Acknowledge reconnection first (hides the overlay on the rejoining client)
+      socket.emit('rejoined');
+
+      // Restore client state based on current game phase
+      const basePayload = {
+        players:     room.players.map(p => p.name),
+        round:       room.round,
+        prompt:      room.currentPrompt,
+        matchCount:  room.matchCount,
+        totalRounds: room.settings.totalRounds,
+        category:    room.settings.category,
+      };
+
+      switch (room.phase) {
+        case 'answering':
+          socket.emit('game-start', basePayload);
+          break;
+        case 'reveal':
+          if (room.lastResult) socket.emit('both-answered', room.lastResult);
+          else                  socket.emit('game-start', basePayload);
+          break;
+        case 'gameover':
+          socket.emit('game-over', {
+            matchCount:  room.matchCount,
+            totalRounds: room.settings.totalRounds,
+          });
+          break;
+        default:
+          socket.emit('game-start', basePayload);
+      }
+
+      console.log(`[rejoin]     "${slot.playerName}" rejoined room ${code}`);
+    });
+
+    // ── disconnect ─────────────────────────────────────────────────
+    socket.on('disconnect', () => {
+      const code        = socket.data.roomCode;
+      const playerName  = socket.data.playerName;
+      const playerIndex = socket.data.playerIndex;
+
+      if (!code || !rooms[code]) {
+        console.log(`[disconnect] ${socket.id}`);
+        return;
+      }
+
+      const room = rooms[code];
+
+      // Clean up any lingering votes from this socket
+      room.nextRoundVotes?.delete(socket.id);
+      room.playAgainVotes?.delete(socket.id);
+
+      // No grace period before the game starts or after it ends
+      if (room.players.length < 2 || room.phase === 'waiting' || room.phase === 'gameover') {
+        io.to(code).emit('player-disconnected', { name: playerName });
+        delete rooms[code];
+        console.log(`[disconnect] ${socket.id} — room ${code} closed immediately`);
+        return;
+      }
+
+      // If the other player is already in a grace period, both are gone — clean up now
+      if (room.disconnectSlot) {
+        clearTimeout(room.disconnectTimer);
+        delete rooms[code];
+        console.log(`[disconnect] ${socket.id} — room ${code} closed (both disconnected)`);
+        return;
+      }
+
+      // Start the 15-second grace period
+      if (room.players[playerIndex]) room.players[playerIndex].id = null;
+      room.disconnectSlot = { playerIndex, playerName };
+
+      // Immediately notify the remaining player
+      io.to(code).emit('opponent-disconnected', { name: playerName });
+
+      room.disconnectTimer = setTimeout(() => {
+        if (rooms[code]) {
+          io.to(code).emit('player-disconnected', { name: playerName });
+          delete rooms[code];
+          console.log(`[room]       ${code} closed — "${playerName}" timed out`);
+        }
+      }, 15000);
+
+      console.log(`[disconnect] ${socket.id} — grace period started for room ${code}`);
     });
   });
 }

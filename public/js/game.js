@@ -2,6 +2,7 @@
 const socket = io();
 
 let myPlayerIndex    = -1;   // 0 = first player (creator), 1 = second player (joiner)
+let myRoomCode       = null;
 let currentRound     = 1;
 let totalRounds      = 6;
 let playerNames      = [];   // [player0Name, player1Name]
@@ -124,6 +125,7 @@ roundsInput.addEventListener('blur', () => {
 // Room was created successfully — show the room code while waiting for a partner
 socket.on('room-created', ({ roomCode, playerIndex }) => {
   myPlayerIndex = playerIndex;
+  myRoomCode    = roomCode;
   const roomCodeEl = document.getElementById('display-room-code');
   roomCodeEl.textContent = roomCode;
   roomCodeEl.onclick = () => {
@@ -142,6 +144,7 @@ socket.on('room-created', ({ roomCode, playerIndex }) => {
 // Joined a room — game-start will fire immediately after to start round 1
 socket.on('joined-room', ({ roomCode, playerIndex }) => {
   myPlayerIndex = playerIndex;
+  myRoomCode    = roomCode;
 });
 
 // game-start fires at the beginning of every round (including round 1 and play-again resets)
@@ -151,6 +154,8 @@ socket.on('game-start', ({ players, round, prompt, matchCount: mc, totalRounds: 
   totalRounds  = t;
   matchCount   = mc;
   if (round === 1) roundHistory = [];
+
+  document.getElementById('opponent-banner').classList.add('hidden');
 
   // Switch the header to its compact form during active gameplay
   document.querySelector('header').classList.add('compact');
@@ -338,8 +343,9 @@ socket.on('opponent-play-again', () => {
   if (!btn.disabled) btn.classList.add('pulse');
 });
 
-// player-disconnected fires when the other player closes their tab or loses connection
+// player-disconnected fires when the grace period expires and the room is closed
 socket.on('player-disconnected', ({ name }) => {
+  document.getElementById('opponent-banner').classList.add('hidden');
   showError(`${name} disconnected. The game has ended.`);
 });
 
@@ -388,4 +394,32 @@ document.getElementById('play-again-btn').addEventListener('click', () => {
 
 document.getElementById('back-to-lobby-btn').addEventListener('click', () => {
   location.reload();
+});
+
+// ── Connection state handling ─────────────────────────────────────────────────
+
+socket.on('disconnect', () => {
+  if (myPlayerIndex !== -1) {
+    document.getElementById('connection-overlay').classList.remove('hidden');
+  }
+});
+
+socket.on('connect', () => {
+  if (myPlayerIndex !== -1 && myRoomCode) {
+    socket.emit('rejoin-room', { roomCode: myRoomCode, playerIndex: myPlayerIndex });
+  }
+});
+
+socket.on('rejoined', () => {
+  document.getElementById('connection-overlay').classList.add('hidden');
+});
+
+socket.on('opponent-disconnected', ({ name }) => {
+  document.getElementById('opponent-banner-text').textContent =
+    `${name} disconnected — waiting for them to reconnect…`;
+  document.getElementById('opponent-banner').classList.remove('hidden');
+});
+
+socket.on('opponent-reconnected', () => {
+  document.getElementById('opponent-banner').classList.add('hidden');
 });
