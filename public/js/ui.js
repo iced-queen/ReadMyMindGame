@@ -1,26 +1,22 @@
-// ── Screen management ─────────────────────────────────────────────────────────
-//
-// Only one screen is visible at a time.
-// Call showScreen('screen-id') to switch to a different screen.
-//
+// screen management
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
   document.getElementById(id).classList.add('active');
 }
 
-// Updates the heading and subtext on the generic waiting screen.
+// fill in the waiting screen
 function setWaiting(heading, subtext) {
   document.getElementById('waiting-heading').textContent = heading;
   document.getElementById('waiting-subtext').textContent = subtext;
 }
 
-// Switches to the error screen with a custom message.
+// show error
 function showError(message) {
   document.getElementById('error-msg-text').textContent = message;
   showScreen('screen-error');
 }
 
-// Escapes HTML special characters to safely insert user content into innerHTML.
+// html escape
 function escHtml(str) {
   return String(str)
     .replace(/&/g, '&amp;')
@@ -30,8 +26,7 @@ function escHtml(str) {
     .replace(/'/g, '&#39;');
 }
 
-// Builds the answer comparison section on the results screen.
-// Shows each player's answer in a row — green if they matched, neutral if not.
+// build answer rows
 function buildAnswerCompare(answers, players, matched) {
   const container = document.getElementById('answer-compare');
   container.innerHTML = '';

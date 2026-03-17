@@ -1,4 +1,4 @@
-// ── Client state ──────────────────────────────────────────────────────────────
+// state
 const socket = io();
 
 let myPlayerIndex    = -1;   // 0 = first player (creator), 1 = second player (joiner)
@@ -6,11 +6,11 @@ let myRoomCode       = null;
 let currentRound     = 1;
 let totalRounds      = 6;
 let playerNames      = [];   // [player0Name, player1Name]
-let matchCount       = 0;    // how many rounds both players matched this game
+let matchCount       = 0;    // running match count
 let selectedCategory = 'all'; // category id chosen in settings
 let roundHistory     = [];   // [{ round, prompt, answers, players, matched }]
 
-// ── Category definitions (must stay in sync with src/prompts.js CATEGORIES) ───
+// keep in sync with src/prompts.js
 const CATEGORIES = [
   { id: 'all',           label: 'All Categories',  emoji: '🎲' },
   { id: 'food',          label: 'Food & Drink',    emoji: '🍕' },
@@ -22,7 +22,7 @@ const CATEGORIES = [
   { id: 'random',        label: 'Random & Fun',    emoji: '✨' },
 ];
 
-// Build the category grid in the settings screen on page load.
+// fill in the category buttons
 (function buildCategoryGrid() {
   const grid = document.getElementById('category-grid');
   CATEGORIES.forEach(cat => {
@@ -40,8 +40,7 @@ const CATEGORIES = [
   });
 })();
 
-// ── Match rating ──────────────────────────────────────────────────────────────
-// Returns a title and description based on how many rounds were matched.
+// match rating
 function getMatchRating(matched, total) {
   const ratio = matched / total;
   if (ratio === 1)  return { title: 'Telepathic! 🔮',     desc: 'A perfect score — you two are on another level.' };
@@ -52,16 +51,16 @@ function getMatchRating(matched, total) {
   return                    { title: 'Total Strangers 😶', desc: 'You two think very differently — better luck next time!' };
 }
 
-// ── Lobby ─────────────────────────────────────────────────────────────────────
+// lobby
 
-// "Create New Room" goes to the settings screen first
+// go to settings first
 document.getElementById('create-btn').addEventListener('click', () => {
   const name = document.getElementById('player-name').value.trim();
   if (!name) { alert('Please enter your name.'); return; }
   showScreen('screen-room-settings');
 });
 
-// "Create Room" in settings — sends the settings to the server
+// send settings to server
 document.getElementById('confirm-create-btn').addEventListener('click', () => {
   const name = document.getElementById('player-name').value.trim();
   if (!name) { alert('Please enter your name.'); return; }
@@ -76,7 +75,7 @@ document.getElementById('back-to-lobby-settings-btn').addEventListener('click', 
   showScreen('screen-lobby');
 });
 
-// "Join Room" looks up the entered code on the server
+// look up the code
 document.getElementById('join-btn').addEventListener('click', () => {
   const name = document.getElementById('player-name').value.trim();
   const code = document.getElementById('room-code-input').value.trim().toUpperCase();
@@ -85,12 +84,12 @@ document.getElementById('join-btn').addEventListener('click', () => {
   socket.emit('join-room', { roomCode: code, playerName: name });
 });
 
-// Allow pressing Enter in the code field to trigger Join
+// enter key triggers join
 document.getElementById('room-code-input').addEventListener('keydown', e => {
   if (e.key === 'Enter') document.getElementById('join-btn').click();
 });
 
-// ── Rounds stepper ────────────────────────────────────────────────────────────
+// rounds stepper
 
 let roundsSetting = 6;
 const roundsInput = document.getElementById('rounds-display');
@@ -113,16 +112,16 @@ roundsInput.addEventListener('input', () => {
 });
 
 roundsInput.addEventListener('blur', () => {
-  // Snap back to a valid number if the field is left blank or invalid
+  // snap back if blank or invalid
   roundsSetting = clampRounds(
     isNaN(parseInt(roundsInput.value, 10)) ? 6 : parseInt(roundsInput.value, 10)
   );
   roundsInput.value = roundsSetting;
 });
 
-// ── Socket responses ──────────────────────────────────────────────────────────
+// socket events
 
-// Room was created successfully — show the room code while waiting for a partner
+// room created, show the code
 socket.on('room-created', ({ roomCode, playerIndex }) => {
   myPlayerIndex = playerIndex;
   myRoomCode    = roomCode;
@@ -134,20 +133,20 @@ socket.on('room-created', ({ roomCode, playerIndex }) => {
       setTimeout(() => roomCodeEl.classList.remove('copied'), 2000);
     });
   };
-  // Show the chosen category in the waiting room so the creator remembers what they picked
+  // show chosen category
   const cat = CATEGORIES.find(c => c.id === selectedCategory);
   document.getElementById('waiting-room-category').textContent =
     cat ? `${cat.emoji}\u00a0${cat.label}` : '';
   showScreen('screen-waiting-room');
 });
 
-// Joined a room — game-start will fire immediately after to start round 1
+// game-start fires right after this
 socket.on('joined-room', ({ roomCode, playerIndex }) => {
   myPlayerIndex = playerIndex;
   myRoomCode    = roomCode;
 });
 
-// game-start fires at the beginning of every round (including round 1 and play-again resets)
+// runs at the start of every round
 socket.on('game-start', ({ players, round, prompt, matchCount: mc, totalRounds: t, category }) => {
   currentRound = round;
   playerNames  = players;
@@ -157,20 +156,20 @@ socket.on('game-start', ({ players, round, prompt, matchCount: mc, totalRounds: 
 
   document.getElementById('opponent-banner').classList.add('hidden');
 
-  // Switch the header to its compact form during active gameplay
+  // shrink the header during play
   document.querySelector('header').classList.add('compact');
 
-  // Show the active category as a small badge on the answering screen
+  // category badge
   const cat = CATEGORIES.find(c => c.id === category);
   const catBadge = document.getElementById('category-badge');
   if (catBadge && cat) catBadge.textContent = `${cat.emoji}\u00a0${cat.label}`;
 
-  // Populate the answering screen
+  // fill in round info
   const roundLabel = `Round ${round} / ${totalRounds}`;
   document.getElementById('answering-round').textContent = roundLabel;
   document.getElementById('prompt-display').textContent  = prompt;
 
-  // Reset the input and submit button for the new round
+  // clear input for new round
   const input = document.getElementById('answer-input');
   input.value    = '';
   input.disabled = false;
@@ -183,16 +182,15 @@ socket.on('game-start', ({ players, round, prompt, matchCount: mc, totalRounds: 
   showScreen('screen-answering');
 });
 
-// both-answered fires when both players have submitted — time to reveal the answers
+// both players answered, show results
 socket.on('both-answered', ({ answers, matched, players, matchCount: mc, round, totalRounds: t, prompt }) => {
   matchCount = mc;
   roundHistory.push({ round, prompt, answers: [...answers], players: [...players], matched });
 
-  // Update the match counter
   document.getElementById('match-count-display').textContent = matchCount;
   document.getElementById('match-total-display').textContent = t;
 
-  // Animate the big result heading: green for a match, amber for no match
+  // animate result heading
   const heading   = matched ? '🧠 Match!' : '😬 No Match';
   const headingEl = document.getElementById('result-heading');
   headingEl.textContent = heading;
@@ -202,7 +200,7 @@ socket.on('both-answered', ({ answers, matched, players, matchCount: mc, round, 
 
   document.getElementById('results-round').textContent = `Round ${round} / ${t}`;
 
-  // Always show the prompt on the results screen
+  // show prompt
   const resultPromptBox  = document.getElementById('result-prompt-box');
   const resultPromptText = document.getElementById('result-prompt-text');
   if (prompt) {
@@ -212,16 +210,15 @@ socket.on('both-answered', ({ answers, matched, players, matchCount: mc, round, 
     resultPromptBox.style.display = 'none';
   }
 
-  // Build the two answer rows
   buildAnswerCompare(answers, players, matched);
 
-  // Set up the Next Round button
+  // next button
   const nextBtn = document.getElementById('next-round-btn');
   nextBtn.disabled    = false;
   nextBtn.textContent = round >= t ? 'Finish Game →' : 'Next Round →';
   nextBtn.classList.remove('pulse');
 
-  // Reset the ready pills so they both start unlit
+  // clear ready status
   document.getElementById('ready-name-me').textContent   = playerNames[myPlayerIndex];
   document.getElementById('ready-name-them').textContent = playerNames[1 - myPlayerIndex];
   document.getElementById('ready-pill-me').classList.remove('is-ready');
@@ -230,7 +227,7 @@ socket.on('both-answered', ({ answers, matched, players, matchCount: mc, round, 
   showScreen('screen-results');
 });
 
-// waiting-for-next-round fires when THIS player clicked Next Round but the other hasn't yet
+// we clicked next, waiting on them
 socket.on('waiting-for-next-round', () => {
   const btn = document.getElementById('next-round-btn');
   btn.disabled    = true;
@@ -239,15 +236,15 @@ socket.on('waiting-for-next-round', () => {
   document.getElementById('ready-pill-me').classList.add('is-ready');
 });
 
-// opponent-ready fires when the OTHER player clicked Next Round first
+// they already clicked next
 socket.on('opponent-ready', () => {
   document.getElementById('ready-pill-them').classList.add('is-ready');
-  // Pulse the button to nudge this player to also click
+  // nudge them to click
   const btn = document.getElementById('next-round-btn');
   if (!btn.disabled) btn.classList.add('pulse');
 });
 
-// game-over fires when all rounds are done
+// all rounds finished
 socket.on('game-over', ({ matchCount: final, totalRounds: t }) => {
   document.querySelector('header').classList.remove('compact');
 
@@ -255,7 +252,7 @@ socket.on('game-over', ({ matchCount: final, totalRounds: t }) => {
   document.getElementById('gameover-heading').textContent = rating.title;
   document.getElementById('gameover-detail').textContent  = rating.desc;
 
-  // Build the final match fraction (big number display)
+  // final score
   document.getElementById('final-match-display').innerHTML =
     `<div class="final-match-fraction">
       <span class="final-match-num">${final}</span>
@@ -264,7 +261,7 @@ socket.on('game-over', ({ matchCount: final, totalRounds: t }) => {
     </div>
     <p class="final-match-label">You matched ${final} out of ${t} round${t !== 1 ? 's' : ''}</p>`;
 
-  // Build the round-by-round summary
+  // round history
   const scroll = document.getElementById('game-summary-scroll');
   scroll.innerHTML = '';
   roundHistory.forEach(entry => {
@@ -327,7 +324,7 @@ socket.on('game-over', ({ matchCount: final, totalRounds: t }) => {
   showScreen('screen-game-over');
 });
 
-// play-again-waiting fires when THIS player clicked Play Again but the other hasn't yet
+// we clicked play again, waiting on them
 socket.on('play-again-waiting', () => {
   const btn = document.getElementById('play-again-btn');
   btn.disabled    = true;
@@ -336,33 +333,31 @@ socket.on('play-again-waiting', () => {
   document.getElementById('play-again-pill-me').classList.add('is-ready');
 });
 
-// opponent-play-again fires when the OTHER player clicked Play Again first
+// they want to play again
 socket.on('opponent-play-again', () => {
   document.getElementById('play-again-pill-them').classList.add('is-ready');
   const btn = document.getElementById('play-again-btn');
   if (!btn.disabled) btn.classList.add('pulse');
 });
 
-// player-disconnected fires when the grace period expires and the room is closed
+// room closed after disconnect
 socket.on('player-disconnected', ({ name }) => {
   document.getElementById('opponent-banner').classList.add('hidden');
   showError(`${name} disconnected. The game has ended.`);
 });
 
-// error-message is used for join failures (room full, not found, etc.)
+// join error
 socket.on('error-message', message => {
   showError(message);
 });
 
-// ── Submit answer ─────────────────────────────────────────────────────────────
+// submit answer
 
 document.getElementById('submit-answer-btn').addEventListener('click', () => {
   const answer = document.getElementById('answer-input').value.trim();
   if (!answer) { alert('Please type an answer first.'); return; }
 
-  // Send the answer and immediately switch to the waiting screen.
-  // If the other player already submitted, both-answered will arrive quickly
-  // and transition us straight to the results screen.
+  // lock in and show waiting screen
   socket.emit('submit-answer', { answer });
 
   setWaiting(
@@ -373,30 +368,30 @@ document.getElementById('submit-answer-btn').addEventListener('click', () => {
   showScreen('screen-waiting');
 });
 
-// Allow pressing Enter in the answer field to submit
+// enter to submit
 document.getElementById('answer-input').addEventListener('keydown', e => {
   if (e.key === 'Enter') document.getElementById('submit-answer-btn').click();
 });
 
-// ── Next Round ────────────────────────────────────────────────────────────────
+// next round
 
 document.getElementById('next-round-btn').addEventListener('click', () => {
   socket.emit('next-round');
 });
 
-// ── Play Again ────────────────────────────────────────────────────────────────
+// play again
 
 document.getElementById('play-again-btn').addEventListener('click', () => {
   socket.emit('play-again');
 });
 
-// ── Error screen ──────────────────────────────────────────────────────────────
+// error screen
 
 document.getElementById('back-to-lobby-btn').addEventListener('click', () => {
   location.reload();
 });
 
-// ── Connection state handling ─────────────────────────────────────────────────
+// reconnection
 
 socket.on('disconnect', () => {
   if (myPlayerIndex !== -1) {
